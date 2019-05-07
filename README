@@ -1,0 +1,22 @@
+2009-04-22
+Renamed to V-USB-MIDI.
+Builds perfectly with actual driver (usbdrv-20090415).
+USB_INITIAL_DATATOKEN hack no more needed.
+
+2008-05-20
+This USB MIDI is build upon an AVR ATMega16, powered from USB through 2 diodes
+(3.5 volts). I have potentiometers (AVCC/AGND) connected to the analog inputs
+(PORTA) which are converted to a range from 0x00..0x7F to create up to eight
+midi controls (CC). On my STK500 I've also tested a simple key routine (PORTB),
+which sends eight "white" keys (60, 62, 64, 65, 67, 69, 71, 72). Serial
+debugging is enabled.
+This interface shows up on my linux PC and works fine with vanilla kernel
+>=2.6.23.x or with a little patch for my 2.6.22.1-rt9. 
+To get the first keypress sent after power up I defined USB_INITIAL_DATATOKEN 
+to USBPID_DATA1.
+MIDI messages are also received from PC but for now only a LED is toggled 
+(and a debug message sent to UART).
+This device is class compliant, I use device type audio/midi stream.
+PID=1508 and VID=5824.
+
+Martin Homuth-Rosemann
