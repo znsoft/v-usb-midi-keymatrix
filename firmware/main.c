@@ -374,10 +374,10 @@ int adc(uchar adctouse)
 
 
 void mutematrix(){
-DDRC=0;
-	  PORTC=0xFF;
-	      DDRB=0;
-      PORTB=0xFF;  
+		DDRC=0;
+		PORTC=0xFF;
+	    DDRB=0;
+		PORTB=0xFF;  
 
 }
 
@@ -407,13 +407,13 @@ uint8_t scanKeys(uint8_t* notes,uint8_t size){
   for(i=0;i<8;i++){
      if (i<6) {//set row line
 	  DDRC=0;
-	  PORTC=0xFF;
+	  PORTC=0xFF; // clear port C z-state
       data=pgm_read_byte(&modmask[i]);
       DDRB=data;
       PORTB&=~data;
     } else { // 3 extra rows are on PORTB
       DDRB=0;
-      PORTB=0xFF;
+      PORTB=0xFF; // clear port B z-state
       data=pgm_read_byte(&extrows[i-6]);
       DDRC=data;
       PORTC&=~data;
@@ -422,7 +422,7 @@ uint8_t scanKeys(uint8_t* notes,uint8_t size){
 	
     for(j=0;j<5;j++){
 		col = pgm_read_byte(&columns[j]);
-      if(~PIND&(col)){
+      if(~PIND&(col)){ //read port D
         notes[count]=key;
         count++;
         if (count==size) {
@@ -441,7 +441,7 @@ uint8_t scanKeys(uint8_t* notes,uint8_t size){
 
 
 int j=0;
-
+const char adcChannels[5] PROGMEM = { 2, 3, 4, 5, 7 };
 int main(void)
 {
 
@@ -449,13 +449,13 @@ int main(void)
 
 	uchar channel = 4;
 	int value;	
-	// only ADC channel 6 and channel 7 are used
+	char adcindex = 0;
 
 
 
 	uchar midiMsg[16];
 	uchar iii;
-	uchar nA;
+//	uchar nA;
 	uchar keys[10];
 	uchar lastKeys[10];
 	memset (keys,0,10);
@@ -528,6 +528,7 @@ int main(void)
 				else{
 
 					// if no key event check analog input
+					channel = pgm_read_byte(&adcChannels[adcindex%5] );
 				value = (adc(channel)+adc(channel))/2;	// 0..1023
 				// hysteresis
 				if (adcOld[channel] - value > 7
@@ -547,9 +548,11 @@ int main(void)
 						
 		
 				}
-				channel++;
-				channel &= 0x07;
-				if (channel>5)					channel = 2;
+				adcindex++;
+				//channel++;
+				//channel &= 0x07;
+				//if (channel>5)					
+				//	channel = 2;
 				
 				}
 				usbPoll();
